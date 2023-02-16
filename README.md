@@ -83,7 +83,7 @@ Access the dashboard at http://localhost:8001/api/v1/namespaces/kubernetes-dashb
 ruby load_test.rb
 ```
 
-However, I cannot confirm now that the load balancing works, because I get responses from the same container even though I have 3 replicas running.
+Load balancing works if the deployment is run with *Ingress Nginx* with the configuration described below.
 
 
 ## Load Balancing and Exposing The Service with Ingress
