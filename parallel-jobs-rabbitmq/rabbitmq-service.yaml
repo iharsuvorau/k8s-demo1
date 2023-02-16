@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-02-16T20:05:02Z"
+  labels:
+    component: rabbitmq
+  name: rabbitmq-service
+  namespace: default
+  resourceVersion: "633"
+  uid: e0ace445-783b-4450-ad40-f9f9ba7e1a95
+spec:
+  clusterIP: 10.96.246.172
+  clusterIPs:
+  - 10.96.246.172
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 5672
+    protocol: TCP
+    targetPort: 5672
+  selector:
+    app: taskQueue
+    component: rabbitmq
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

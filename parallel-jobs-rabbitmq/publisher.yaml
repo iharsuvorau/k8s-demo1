@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: publisher
+spec:
+  template:
+    metadata:
+      name: publisher
+    spec:
+      containers:
+        - name: publisher
+          image: nokal/k8s-samples-wq-publisher:v1
+          env:
+            - name: BROKER_URL
+              value: amqp://guest:guest@rabbitmq-service:5672
+      restartPolicy: OnFailure
