@@ -49,3 +49,7 @@ kubectl describe -f worker.yaml
 ```
 
 At the end, there should be 8 successful job runs.
+
+## References
+
+* [Coarse Parallel Processing Using a Work Queue](https://kubernetes.io/docs/tasks/job/coarse-parallel-processing-work-queue/) by The Kubernetes Authors
