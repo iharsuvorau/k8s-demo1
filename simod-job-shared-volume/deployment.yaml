@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: simod-volume
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /tmp/simod-volume
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - kind-worker
+                - kind-worker2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: simod-volume-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  volumeName: simod-volume
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: simod-job
+spec:
+  ttlSecondsAfterFinished: 0
+  template:
+    spec:
+      volumes:
+        - name: simod-data
+          persistentVolumeClaim:
+            claimName: simod-volume-claim
+      containers:
+        - name: simod
+          image: nokal/simod:v3.2.1
+          command:
+            [
+              "bash",
+              "run.sh",
+              "/usr/src/Simod/data/resources/config/sample.yml",
+              "/usr/src/Simod/data/outputs",
+            ]
+          volumeMounts:
+            - name: simod-data
+              mountPath: /usr/src/Simod/data
+      restartPolicy: OnFailure
