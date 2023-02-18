@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: publisher
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      name: publisher
+    spec:
+      containers:
+        - name: publisher
+          image: nokal/k8s-samples-wq-publisher:v2
+          env:
+            - name: BROKER_URL
+              value: amqp://guest:guest@rabbitmq-service:5672
+            - name: REQUESTS_QUEUE
+              value: requests
+            - name: RESULTS_QUEUE
+              value: results
+      restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      name: worker
+    spec:
+      containers:
+        - name: worker
+          image: nokal/k8s-samples-wq-worker:v2
+          env:
+            - name: BROKER_URL
+              value: amqp://guest:guest@rabbitmq-service:5672
+            - name: REQUESTS_QUEUE
+              value: requests
+            - name: RESULTS_QUEUE
+              value: results
+      restartPolicy: OnFailure
