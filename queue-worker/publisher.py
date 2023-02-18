@@ -1,11 +1,7 @@
 import json
+import os
 import time
 import pika
-
-host = "rabbitmq-service"
-port = 5672
-queue = "requests"
-channel = None
 
 
 def publish_message():
@@ -26,12 +22,10 @@ def publish_message():
     print("Sent message # {}".format(message))
 
 
-credentials = pika.PlainCredentials("guest", "guest")
-parameters = pika.ConnectionParameters(
-    host=host,
-    port=port,
-    credentials=credentials,
-)
+broker_url = os.environ.get("BROKER_URL")
+queue = os.environ.get("REQUESTS_QUEUE", "requests")
+
+parameters = pika.URLParameters(broker_url)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 

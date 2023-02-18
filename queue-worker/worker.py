@@ -1,10 +1,6 @@
+import os
 from kubernetes import client, config
 import pika
-
-
-host = "rabbitmq-service"
-port = 5672
-queue = "requests"
 
 
 def on_message(channel, method_frame, header_frame, body):
@@ -32,14 +28,13 @@ def print_api_versions():
         print("%-40s %s" % (api.name, ",".join(versions)))
 
 
-credentials = pika.PlainCredentials("guest", "guest")
-parameters = pika.ConnectionParameters(
-    host=host,
-    port=port,
-    credentials=credentials,
-)
+broker_url = os.environ.get("BROKER_URL")
+queue = os.environ.get("REQUESTS_QUEUE", "requests")
+
+parameters = pika.URLParameters(broker_url)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
+
 channel.basic_consume(queue=queue, on_message_callback=on_message)
 
 try:
