@@ -6,32 +6,6 @@ host = "rabbitmq-service"
 port = 5672
 queue = "requests"
 
-channel = None
-
-
-def on_connected(connection):
-    connection.channel(on_open_callback=on_channel_open)
-
-
-def on_channel_open(new_channel):
-    global channel, queue
-
-    channel = new_channel
-    channel.queue_declare(
-        queue=queue,
-        durable=False,
-        exclusive=False,
-        auto_delete=False,
-        callback=on_queue_declared,
-    )
-
-
-def on_queue_declared(frame):
-    global channel, queue
-
-    print("Queue declared")
-    channel.basic_consume(queue=queue, on_message_callback=on_message)
-
 
 def on_message(channel, method_frame, header_frame, body):
     print(
@@ -64,10 +38,14 @@ parameters = pika.ConnectionParameters(
     port=port,
     credentials=credentials,
 )
-connection = pika.SelectConnection(parameters, on_open_callback=on_connected)
+connection = pika.BlockingConnection(parameters)
+channel = connection.channel()
+channel.basic_consume(queue=queue, on_message_callback=on_message)
 
 try:
-    connection.ioloop.start()
+    channel.start_consuming()
 except KeyboardInterrupt:
-    connection.close()
-    connection.ioloop.start()
+    channel.stop_consuming()
+connection.close()
+
+print("Done")
