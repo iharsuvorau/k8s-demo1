@@ -1,15 +1,12 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: wq-demo
+  name: publisher
 spec:
-  selector:
-    matchLabels:
-      app: wq-demo
+  ttlSecondsAfterFinished: 100
   template:
     metadata:
-      labels:
-        app: wq-demo
+      name: publisher
     spec:
       containers:
         - name: publisher
@@ -21,6 +18,19 @@ spec:
               value: requests
             - name: RESULTS_QUEUE
               value: results
+      restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: worker
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      name: worker
+    spec:
+      containers:
         - name: worker
           image: nokal/k8s-samples-wq-worker:v2
           env:
@@ -30,3 +40,4 @@ spec:
               value: requests
             - name: RESULTS_QUEUE
               value: results
+      restartPolicy: OnFailure
